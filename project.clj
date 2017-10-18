@@ -69,6 +69,7 @@
      :source-paths ["src/cljs"]
      :compiler     {:main            re-dnd-demo.core
                     :output-to       "resources/public/js/compiled/app-demo.js"
+                    :output-dir      "resources/public/js/compiled/demo/out"
                     :optimizations   :advanced
                     :closure-defines {goog.DEBUG false}
                     :pseudo-names    false
