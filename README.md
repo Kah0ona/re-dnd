@@ -15,9 +15,6 @@ Let's get started, shall we?
 First add this to your project.clj dependencies
 
 [![Clojars Project](https://img.shields.io/clojars/v/re-dnd.svg)](https://clojars.org/re-dnd)
-```
- [re-dnd "0.1.0-SNAPSHOT"]
-```
 
 re-dnd will store all its state in the local app-db, just as the rest of your re-frame app.
 To avoid name clashes, it will store all its state under the key `:dnd/state` in the db.
