@@ -13,7 +13,7 @@ Let's get started, shall we?
 ### Usage
 First add this to your project.clj dependencies
 ```
- [re-dnd "0.1.0"]
+ [re-dnd "0.1.0-SNAPSHOT"]
 ```
 
 re-dnd will store all its state in the local app-db, just as the rest of your re-frame app.
