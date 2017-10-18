@@ -2,6 +2,7 @@
 
 ## Introduction
 
+
 Re-dnd (drag and drop) is a configurable widget for dragging items onto a drop-zone.
 It is designed to be configurable, so that it looks and behaves like you want it to. Being re-frame based, it also provides
 a nice API for querying or changing drag/drop state (through subscribe/dispatch).
@@ -12,6 +13,8 @@ Let's get started, shall we?
 
 ### Usage
 First add this to your project.clj dependencies
+
+[![Clojars Project](https://img.shields.io/clojars/v/re-dnd.svg)](https://clojars.org/re-dnd)
 ```
  [re-dnd "0.1.0-SNAPSHOT"]
 ```
