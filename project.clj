@@ -7,7 +7,6 @@
                  [reagent "0.8.0-alpha1"]
                  [re-frame "0.10.1"]
                  [com.taoensso/timbre "4.10.0"]
-                 [binaryage/devtools "0.9.7"]
                  [re-frame-utils "0.1.0-SNAPSHOT"]
                  [fipp "0.6.10"]]
 
@@ -24,22 +23,24 @@
 
   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
 
-  :aliases {"dev" ["do" "clean"
-                        ["pdo" ["figwheel" "dev"]]]
+  :aliases {"dev"   ["do" "clean"
+                     ["pdo" ["figwheel" "dev"]]]
+            "demo"  ["do" "clean"
+                     ["cljsbuild" "once" "demo"]]
             "build" ["do" "clean"
-                          ["cljsbuild" "once" "min"]]}
+                     ["cljsbuild" "once" "min"]]}
 
-  :jar-exclusions   [#"(?:^|\/)re_dnd_demo\/" #"(?:^|\/)demo\/" #"(?:^|\/)compiled.*\/" #"html$"]
+;;  :jar-exclusions   [#"(?:^|\/)re_dnd_demo\/" #"(?:^|\/)demo\/" #"(?:^|\/)compiled.*\/" #"html$"]
 
   :profiles
   {:dev
-   {:dependencies [[binaryage/devtools "0.9.4"]
+   {:dependencies [[binaryage/devtools "0.9.7"]
                    [figwheel-sidecar "0.5.13"]
                    [com.cemerick/piggieback "0.2.2"]]
 
-    :plugins      [[lein-figwheel "0.5.13"]
-                   [lein-doo "0.1.8"]
-                   [lein-pdo "0.1.1"]]}}
+    :plugins [[lein-figwheel "0.5.13"]
+              [lein-doo "0.1.8"]
+              [lein-pdo "0.1.1"]]}}
 
   :cljsbuild
   {:builds
@@ -51,6 +52,7 @@
                     :output-dir           "resources/public/js/compiled/out"
                     :asset-path           "js/compiled/out"
                     :source-map-timestamp true
+                    :closure-defines      {goog.DEBUG true}
                     :preloads             [devtools.preload]
                     :external-config      {:devtools/config {:features-to-install :all}}}}
 
@@ -60,6 +62,16 @@
                     :output-to       "resources/public/js/compiled/app.js"
                     :optimizations   :advanced
                     :closure-defines {goog.DEBUG false}
+                    :pseudo-names    false
+                    :pretty-print    false}}
+
+    {:id           "demo"
+     :source-paths ["src/cljs"]
+     :compiler     {:main            re-dnd-demo.core
+                    :output-to       "resources/public/js/compiled/app-demo.js"
+                    :optimizations   :advanced
+                    :closure-defines {goog.DEBUG false}
+                    :pseudo-names    false
                     :pretty-print    false}}
 
     {:id           "test"
