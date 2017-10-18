@@ -1,6 +1,5 @@
 (ns re-dnd-demo.core
-  (:require [devtools.core :as devtools]
-            [re-dnd-demo.config :as config]
+  (:require [re-dnd-demo.config :as config]
             [re-dnd-demo.views :as my-views]
             [re-dnd.events]
             [re-dnd.subs]
@@ -10,8 +9,8 @@
 
 (defn dev-setup []
   (when config/debug?
-    (devtools/enable-feature! :sanity-hints)
-    (devtools/install!)
+    (devtools.core/enable-feature! :sanity-hints)
+    (devtools.core/install!)
     (enable-console-print!)
     (println "dev mode")))
 
