@@ -3,27 +3,28 @@
 ## Introduction
 
 Re-dnd (drag and drop) is a configurable widget for dragging items onto a drop-zone.
-It is designed to be configurable, so that it looks and behaves like you want it to. Being re-frame based, it also provides (as a by-product)
-a nice API for querying or changing drag/drop state.
+It is designed to be configurable, so that it looks and behaves like you want it to. Being re-frame based, it also provides
+a nice API for querying or changing drag/drop state (through subscribe/dispatch).
 
-You can configure what happens upon dropping an element, with sensible defaults at place if you don't.
+You can configure what happens upon dropping an element, with sensible defaults in place if you don't.
 
 Let's get started, shall we?
 
+### Usage
 First add this to your project.clj dependencies
 ```
  [re-dnd "0.1.0"]
 ```
 
-### Usage
-re-dnd will store all its state in the app-db, just as the rest of your re-frame app.
+re-dnd will store all its state in the local app-db, just as the rest of your re-frame app.
 To avoid name clashes, it will store all its state under the key `:dnd/state` in the db.
 
-Below we explain the usage by an example.
+Below the usage is explained through an example. Check the [demo](http://sytematic.nl/re-dnd-demo/index.html) here.
 
 First initialize everything properly
 ```
-To make sure everything is initialized properly, require re-dnd.events in your core.cljs, or whereever your entry point is.
+To make sure everything is initialized properly, require re-dnd.events in your core.cljs,
+or where ever your entry point is.
 (ns your-app.core
  (:require
    ...
