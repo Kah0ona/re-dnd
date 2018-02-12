@@ -9,8 +9,8 @@
 
 (defn dev-setup []
   (when config/debug?
-    (devtools.core/enable-feature! :sanity-hints)
-    (devtools.core/install!)
+;;    (devtools.core/enable-feature! :sanity-hints)
+;;    (devtools.core/install!)
     (enable-console-print!)
     (println "dev mode")))
 

@@ -1,5 +1,4 @@
 .draggable, dropped-element {
-   cursor: move;
    position: relative;
 }
 

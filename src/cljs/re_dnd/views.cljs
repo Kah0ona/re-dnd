@@ -15,6 +15,9 @@
   [{:keys [type id]}]
   [:div.drop-marker])
 
+(defmulti drag-handle
+  (fn [{:keys [type id]}] type))
+
 (defn start-drag-fn
   [id drop-zone-id e e2]
   (rf/dispatch [:dnd/start-drag id
@@ -23,7 +26,8 @@
                    (.-scrollX js/window))
                 (+ (.-clientY e)
                    (.-scrollY js/window))
-                (-> e .-target .-clientWidth) (-> e .-target .-clientHeight)]))
+                (-> e .-target .-parentNode .-clientWidth)
+                (-> e .-target .-parentNode .-clientHeight)]))
 
 (defn hover-fn
   [elt-id drop-zone-id hover-in?]
@@ -54,18 +58,23 @@
   [id de]
   (let [drag-status (rf/subscribe [:dnd/drag-status (:id de) id])]
     (fn [id de]
-      [:div.dropped-element
-       {:id            (str "dropped-element-" (name (:id de)))
-        :on-mouse-over (partial hover-fn (:id de) id true)
-        :on-mouse-out (partial hover-fn (:id de) id false)
-        :on-mouse-down (partial start-drag-fn (:id de) id)
-        ;;drop-zone elements can be re-ordered, this is the only functionality
-        :on-mouse-up   (partial reorder-fn id (:id de))}
-       (when (= :hover @drag-status)
+      [:div.dropped-element.row
+       {:id (str "dropped-element-" (name (:id de)))}
+       #_(when (= :hover @drag-status)
          [:div.drag-mask
-          {:style {:width "100%"
+          {:style {:width  "100%"
                    :height "100%"}}])
-       [dropped-widget de]])))
+
+       [:div.drag-handle.col-md-1
+        {:on-mouse-over (partial hover-fn (:id de) id true)
+         :on-mouse-out  (partial hover-fn (:id de) id false)
+         :on-mouse-down (partial start-drag-fn (:id de) id)
+         ;;drop-zone elements can be re-ordered, this is the only functionality
+         :on-mouse-up   (partial reorder-fn id (:id de))}
+        [drag-handle de]]
+       [:div.dropped-element-body.col-md-11
+        [dropped-widget de]]
+       [:div {:style {:clear :both}}]])))
 
 (defn drop-zone
   ([id]

@@ -35,11 +35,21 @@
   [{:keys [type id]}]
   [:div.drop-marker])
 
+(defmethod dndv/drag-handle
+  :my-drop-marker
+  [{:keys [type id]}]
+  [:div])
+
 (defmethod dndv/dropped-widget
   :bluebox
   [{:keys [type id]}]
   [:div.box.blue-box
    (str type ", " id)])
+
+(defmethod dndv/drag-handle
+  :bluebox
+  [{:keys [type id]}]
+  [:div "bluedraghandle"])
 
 (defmethod dndv/dropped-widget
   :redbox
@@ -47,6 +57,10 @@
   [:div.box.red-box
    (str type ", " id)])
 
+(defmethod dndv/drag-handle
+  :redbox
+  [{:keys [type id]}]
+  [:div "reddraghandle"])
 
 (defn main-panel
   []

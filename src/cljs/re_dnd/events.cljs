@@ -17,6 +17,10 @@
 (set! js/document.body.onmousedown #(re-frame/dispatch [:dnd/set-mouse-button-status true]))
 (set! js/document.body.onmouseup #(re-frame/dispatch [:dnd/set-mouse-button-status false]))
 
+(defn flip-args
+  [f x y]
+  (f y x))
+
 (defn bounding-rect
   [e]
   (if (nil? e)
@@ -25,12 +29,18 @@
           pos  {:top    (.-top rect)
                 :left   (.-left rect)
                 :bottom (.-bottom rect)
-                :right  (.-right rect)}]
-      (-> pos
-          (update :top    + (.-scrollY js/window))
-          (update :right  + (.-scrollX js/window))
-          (update :bottom + (.-scrollY js/window))
-          (update :left   + (.-scrollX js/window))))))
+                :right  (.-right rect)}
+
+          pos' (-> pos
+                  (update :top    + (.-scrollY js/window))
+                  (update :right  + (.-scrollX js/window))
+                  (update :bottom + (.-scrollY js/window))
+                  (update :left   + (.-scrollX js/window)))
+          ]
+      ;;(debug pos)
+      ;;(debug pos')
+      pos'
+      )))
 
 (defn collides?
   [{r1 :right l1 :left t1 :top b1 :bottom}
@@ -158,6 +168,7 @@
 (re-frame/reg-event-fx
  :dnd/mouse-moves
  (fn [{db :db} [_ x y]]
+;;   (debug "mouse-moves:" x y)
    (let [db' (assoc-in db [:dnd/state :mouse-position] {:x x :y y})]
      (if (:mouse-button db)
        (let [[drop-zone-id draggable-id] (find-first-dragging-element db)]
@@ -192,12 +203,12 @@
    (assert id)
    (when id
      (clear-selection))
-   (if drop-zone-id
-     (assoc-in db [:dnd/state :drop-zones drop-zone-id id :position] {:x (- x 20)
-                                                                 :y (- y 20)})
+   (let [pos     {:x (- (- x (.-scrollX js/window)) 20)
+                  :y (- (- y (.-scrollY js/window)) 20)}]
+     (if drop-zone-id
+       (assoc-in db [:dnd/state :drop-zones drop-zone-id id :position] pos)
 
-     (assoc-in db [:dnd/state :draggables id :position] {:x (- x 20)
-                                                    :y (- y 20)}))))
+       (assoc-in db [:dnd/state :draggables id :position] pos)))))
 
 (re-frame/reg-event-db
  :dnd/hover
@@ -216,20 +227,19 @@
  (fn  [db [_ id drop-zone-id x y w h]]
    (let []
      (debug (str "start-drag " drop-zone-id "," id ", x: " x ", y: " y ", w: " w ", h: " h))
-     (if drop-zone-id
-       (-> db
-           (assoc-in [:dnd/state :drop-zones drop-zone-id id :status] :dragging)
-           (assoc-in [:dnd/state :drop-zones drop-zone-id id :position] {:x      (- x 20)
-                                                              :y      (- y 20)
-                                                              :width  w
-                                                              :height h}))
-       ;;else just a normal draggable
-       (-> db
-           (assoc-in [:dnd/state :draggables id :status] :dragging)
-           (assoc-in [:dnd/state :draggables id :position] {:x      (- x 20)
-                                                 :y      (- y 20)
-                                                 :width  w
-                                                 :height h}))))))
+     (let [pos {:x      (- (- x (.-scrollX js/window)) 20)
+                :y      (- (- y (.-scrollY js/window)) 20) ;;discount for scroll pos
+                :width  w
+                :height h}]
+       (debug (:y pos) y (.-scrollY js/window))
+       (if drop-zone-id
+         (-> db
+             (assoc-in [:dnd/state :drop-zones drop-zone-id id :status] :dragging)
+             (assoc-in [:dnd/state :drop-zones drop-zone-id id :position] pos))
+         ;;else just a normal draggable
+         (-> db
+             (assoc-in [:dnd/state :draggables id :status] :dragging)
+             (assoc-in [:dnd/state :draggables id :position] pos)))))))
 
 
 (re-frame/reg-event-fx
@@ -253,8 +263,6 @@
  (fn [db [_ drop-zone-id dropped-element-id]]
    (let [drag-box    (bounding-rect (.getElementById js/document "drag-box"))
          drop-zone   (bounding-rect (.getElementById js/document (str "drop-zone-" drop-zone-id)))]
-     (debug drop-zone-id dropped-element-id)
-     (debug drag-box drop-zone)
      (cond
        (or
         (nil? drop-zone)
