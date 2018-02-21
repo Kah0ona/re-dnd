@@ -20,14 +20,16 @@
 
 (defn start-drag-fn
   [id drop-zone-id e e2]
-  (rf/dispatch [:dnd/start-drag id
-                drop-zone-id
-                (+ (.-clientX e)
-                   (.-scrollX js/window))
-                (+ (.-clientY e)
-                   (.-scrollY js/window))
-                (-> e .-target .-parentNode .-clientWidth)
-                (-> e .-target .-parentNode .-clientHeight)]))
+  (let  [p (.-parentNode (.-parentNode (.-target e)))
+         w (.-clientWidth p)
+         h (.-clientHeight p)]
+    (rf/dispatch [:dnd/start-drag id
+                  drop-zone-id
+                  (+ (.-clientX e)
+                     (.-scrollX js/window))
+                  (+ (.-clientY e)
+                     (.-scrollY js/window))
+                  w h])))
 
 (defn hover-fn
   [elt-id drop-zone-id hover-in?]
