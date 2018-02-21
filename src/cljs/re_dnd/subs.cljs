@@ -12,12 +12,21 @@
  (fn [db [_ id]]
    (get-in db [:dnd/state :draggables id :position])))
 
+(defn get-dz-element
+ [db dz-id draggable-id]
+ (->>
+  (get-in db [:dnd/state :drop-zones dz-id])
+  (filter (fn [{id :id}]
+            (= id draggable-id)))
+  first))
+
 (re-frame/reg-sub
  :dnd/drag-box
  (fn [db _]
    (let [[drop-zone-id draggable-id] (h/find-first-dragging-element db)]
      (if (and drop-zone-id draggable-id)
-       (get-in db [:dnd/state :drop-zones drop-zone-id draggable-id :position])
+       (:position
+        (get-dz-element db drop-zone-id draggable-id))
        ;;else
        (when draggable-id
          (get-in db [:dnd/state :draggables draggable-id :position]))))))
@@ -31,7 +40,7 @@
  :dnd/drag-status
  (fn [db [_ id drop-zone-id]]
    (if drop-zone-id
-     (get-in db [:dnd/state :drop-zones drop-zone-id id :status])
+     (:status (get-dz-element db drop-zone-id id))
      (get-in db [:dnd/state :draggables id :status]))))
 
 (re-frame/reg-sub
@@ -105,7 +114,6 @@
                                     :dnd/state
                                     :drop-zones
                                     vals
-                                    (map vals)
                                     flatten
                                     (filter #(= :dragging (:status %)))
                                     first)]
@@ -146,17 +154,18 @@
               [(first parts) (last parts) sep])
           3 [(first parts) (second parts) sep (last parts)])))
      ;;else no dragging going on, return the elements
-     dropzone-elements)))
+     (do (debug dropzone-elements)
+         dropzone-elements))))
 
 (re-frame/reg-sub
  :dnd/get-colliding-drop-zone-and-index
  ;; Returns collisions of currently dragged elements with drop-zone(s)
  ;; Returns a map from drop-zone-id
- (fn [_ _]
-   [(re-frame/subscribe [:dnd/mouse-position])
-    (re-frame/subscribe [:dnd/drop-zones])
-    (re-frame/subscribe [:dnd/dragged-element])])
+ :<- [:dnd/mouse-position]
+ :<- [:dnd/drop-zones]
+ :<- [:dnd/dragged-element]
  (fn [[mouse drop-zones dragged-element]]
+   (debug mouse (count drop-zones) dragged-element)
    (into {}
          (comp
           (map
@@ -165,7 +174,7 @@
                    dz-box   (h/bounding-rect (.getElementById js/document (str "drop-zone-" (name dz-id))))
                    k        (when (h/collides? drag-box dz-box)
                               dz-id)]
-               [k (calculate-drop-zone-collisions (vals dz))])))
+               [k (calculate-drop-zone-collisions dz)])))
           (remove
            (fn [[k _]]
              (nil? k))))
@@ -174,10 +183,9 @@
 (re-frame/reg-sub
  :dnd/drop-zones
  (fn [db _]
-   (get-in db [:dnd/state  :drop-zones])))
+   (get-in db [:dnd/state :drop-zones])))
 
 (re-frame/reg-sub
  :dnd/dropped-elements
  (fn [db [_ id]]
-   (vals
-    (get-in db [:dnd/state :drop-zones id]))))
+   (get-in db [:dnd/state :drop-zones id])))

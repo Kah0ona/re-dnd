@@ -64,13 +64,11 @@
                 (into {}
                       (map (fn [[k v]]
                              [k
-                              (into {}
-                                    (map (fn [[k' v']]
-                                           [k'
-                                            (-> v'
-                                                (assoc :status :idle)
-                                                (dissoc :position))])
-                                         v))])
+                              (map (fn [v']
+                                     (-> v'
+                                         (assoc :status :idle)
+                                         (dissoc :position)))
+                                   v)])
                            o))))
       (update-in [:dnd/state :draggables]
               (fn [o]
@@ -81,38 +79,31 @@
 
 (defn insert-at-pos
   [pos hmap e]
-  (if (= 0 pos)
-    (concat [[(:id e) e]] (map hmap))
-    (let [[h t] (split-at pos hmap)]
-      (debug hmap)
-      (debug e)
-      (debug (into {}
-                   (concat h [[(:id e) e]] t)))
-      (into {}
-            (concat h [[(:id e) e]] t)))))
+  (let [[h t] (split-at pos hmap)]
+    (concat h [e] t)))
 
-
-(defn move-element-in-map
+(defn move-element-in-list
   [m k new-pos]
-  (let [e (get m k)
-        [h t] (split-at new-pos m)
-        _ (debug h)
-        _ (debug t)
-        _ (debug e)
-        comparator (comp (partial = k) first)]
-    (into {}
-          (concat (remove comparator h) [[(:id e) e]] (remove comparator t)))))
+  (let [e          (-> (filter (fn [{id :id}]
+                                 (= id k)) m)
+                       first)
+        [h t]      (split-at new-pos m)
+        comparator #(= (:id %) k)]
+    (concat (remove comparator h) [e] (remove comparator t))))
 
 (re-frame/reg-event-db
  :dnd/delete-drop-zone-element
  (fn [db [_ dz-id elt-id]]
-   (update-in db [:dnd/state :drop-zones dz-id] dissoc elt-id)))
+   (update-in db [:dnd/state :drop-zones dz-id]
+              #(remove (fn [{id :id}]
+                         (= %2 id))
+                       %1)
+              elt-id)))
 
 (re-frame/reg-event-db
  :dnd/move-drop-zone-element
  (fn [db [_ dz-id e-id new-pos]]
-   (update-in db [:dnd/state :drop-zones dz-id]
-              move-element-in-map e-id new-pos)))
+   (update-in db [:dnd/state :drop-zones dz-id] move-element-in-list e-id new-pos)))
 
 (re-frame/reg-event-db
  :dnd/add-drop-zone-element
@@ -121,7 +112,7 @@
    (when-not type
      (warn "Please set a :type key in the second parameter of options"))
    (if-not dropped-position ;;append
-     (assoc-in db [:dnd/state :drop-zones drop-zone-id id] elt)
+     (update-in db [:dnd/state :drop-zones drop-zone-id] conj elt)
      (update-in db
                 [:dnd/state :drop-zones drop-zone-id]
                 (partial insert-at-pos dropped-position)
@@ -132,7 +123,7 @@
  (fn [db [_ id opts]]
    (-> db
        (assoc-in [:dnd/state :drop-zone-options id] opts)
-       (assoc-in [:dnd/state :drop-zones id] {}))))
+       (assoc-in [:dnd/state :drop-zones id] []))))
 
 (defn find-first-dragging-element
   [db]
@@ -143,10 +134,8 @@
         d' (->> (get-in db [:dnd/state :drop-zones])
                 (map (fn [[dz-id dz]]
                        [dz-id (->> dz
-                                   vals
                                    (filter
-                                    (fn [r]
-                                      (= (:status r) :dragging)))
+                                    (comp (partial = :dragging) :status))
                                    first
                                    :id)]))
                 first)]
@@ -160,6 +149,7 @@
    ;;when not down?, check first dragging id, and handle a drop
    ;; through a re-dispatch for cleanliness
    (let [[drop-zone-id draggable-id] (find-first-dragging-element db)]
+     (debug [drop-zone-id draggable-id])
      (cond->
          {:db (assoc db :mouse-button down?)}
        (and (not down?) draggable-id)
@@ -196,6 +186,17 @@
                  (= "textarea" tag-name))
               (set! (.-selectionStart ae) (.-selectionEnd ae)))))))))
 
+(defn update-dz-elt
+  [db drop-zone-id elt-id f]
+  (update-in db [:dnd/state :drop-zones drop-zone-id]
+             (fn [elts id']
+               (map (fn [e]
+                      (if (= id' (:id e))
+                        (f e)
+                        e))
+                    elts))
+             elt-id))
+
 (re-frame/reg-event-db
  :dnd/drag-move
  (fn [db [_ id drop-zone-id x y]]
@@ -206,21 +207,23 @@
    (let [pos     {:x (- (- x (.-scrollX js/window)) 20)
                   :y (- (- y (.-scrollY js/window)) 20)}]
      (if drop-zone-id
-       (assoc-in db [:dnd/state :drop-zones drop-zone-id id :position] pos)
-
+       (update-dz-elt db drop-zone-id id (fn [e]
+                                        (assoc e :position pos)))
        (assoc-in db [:dnd/state :draggables id :position] pos)))))
 
 (re-frame/reg-event-db
  :dnd/hover
  (fn  [db [_ id drop-zone-id hover-in?]]
+   (debug id drop-zone-id hover-in?)
    (let []
      (if (:mouse-button db)
        db
        (if drop-zone-id
-         (assoc-in db [:dnd/state :drop-zones drop-zone-id id :status] (if hover-in? :hover :idle))
+         (update-dz-elt db drop-zone-id id
+                        (fn [e]
+                          (assoc e :status (if hover-in? :hover :idle))))
          ;;else just a normal draggable
          (assoc-in db [:dnd/state :draggables id :status] (if hover-in? :hover nil)))))))
-
 
 (re-frame/reg-event-db
  :dnd/start-drag
@@ -233,9 +236,13 @@
                 :height h}]
        (debug (:y pos) y (.-scrollY js/window))
        (if drop-zone-id
+
          (-> db
-             (assoc-in [:dnd/state :drop-zones drop-zone-id id :status] :dragging)
-             (assoc-in [:dnd/state :drop-zones drop-zone-id id :position] pos))
+             (update-dz-elt drop-zone-id id
+                            (fn [e]
+                              (assoc e
+                                     :status :dragging
+                                     :position pos))))
          ;;else just a normal draggable
          (-> db
              (assoc-in [:dnd/state :draggables id :status] :dragging)

@@ -83,6 +83,7 @@
    (let [dropped-elements (rf/subscribe [:dnd/dropped-elements-with-drop-marker id])
          overlaps?        (rf/subscribe [:dnd/draggable-overlaps? id])]
      (fn [id body]
+       (debug @dropped-elements)
        [:div.drop-zone
         {:id        (str "drop-zone-" (name id))
          :className (if @overlaps? "highlight" "")}

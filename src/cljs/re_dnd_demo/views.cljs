@@ -77,6 +77,7 @@
          [dndv/drag-box]) ;;this thing follows the mouse, and takes over the draggable's size
        [:div
         [:p "Drag draggables to the drop-zone to the right, or re-order dropped elements in the drop-zone"]
+        #_[debug-panel @db]
         [:button.btn.btn-primary
          {:on-click #(do
                        (swap! last-id inc)
@@ -95,4 +96,4 @@
           [:div "Drop zone"]]]]
        [:div.clear]
 
-       [debug-panel @db]])))
+       #_[debug-panel @db]])))
