@@ -136,6 +136,7 @@
    (if (and (or overlap-dropzone? overlap-id)
             dragged-element)
      ;;we have overlap, and there is dragging going on, insert the separator in there.
+     (debug dragged-element)
      (let [dm    (:drop-marker options)
            sep   (if dm
                    {:type dm
