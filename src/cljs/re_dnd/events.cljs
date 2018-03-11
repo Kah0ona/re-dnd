@@ -257,6 +257,14 @@
         drop-zones-being-hit? :dnd/get-colliding-drop-zone-and-index}
        [_ source-draggable-id source-drop-zone-id]]
    (debug drop-zones-being-hit?)
+   (debug "dispatches: "
+          (for [[drop-zone-id [[dropped-element-id index]]] drop-zones-being-hit?]
+            (let [options                  (get-in db [:dnd/state :drop-zone-options drop-zone-id])
+                  drag-target-hit-dispatch (into (:drop-dispatch options)
+                                                 [[source-drop-zone-id source-draggable-id]
+                                                  [drop-zone-id dropped-element-id index]])]
+              drag-target-hit-dispatch)))
+
    {:db         (set-all-draggables-to-idle db)
     :dispatch-n (for [[drop-zone-id [[dropped-element-id index]]] drop-zones-being-hit?]
                   (let [options                  (get-in db [:dnd/state :drop-zone-options drop-zone-id])
