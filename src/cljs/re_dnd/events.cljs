@@ -216,7 +216,6 @@
 (re-frame/reg-event-db
  :dnd/hover
  (fn  [db [_ id drop-zone-id hover-in?]]
-   (debug id drop-zone-id hover-in?)
    (let []
      (if (:mouse-button db)
        db
