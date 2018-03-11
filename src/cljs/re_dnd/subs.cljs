@@ -133,30 +133,36 @@
     (re-frame/subscribe [:dnd/draggable-overlaps? id])
     (re-frame/subscribe [:dnd/dropped-elements id])])
  (fn [[dragged-element options overlap-id overlap-dropzone? dropzone-elements]]
-   (if (and (or overlap-dropzone? overlap-id)
-            dragged-element)
-     ;;we have overlap, and there is dragging going on, insert the separator in there.
-     (debug dragged-element)
-     (let [dm    (:drop-marker options)
-           sep   (if dm
-                   {:type dm
-                    :id   dm}
-                   {:type :dnd/drop-marker
-                    :id   :dnd/drop-marker})
-           parts (partition-by #(= overlap-id (:id %)) dropzone-elements)
-           sz    (count parts)]
-       (flatten
-        (case sz
-          0 [sep]
-          1 [(first parts) sep]
-          2 (if (= overlap-id (-> parts ffirst :id))
-              [(first parts) sep (last parts)]
-              ;;else, put sep at the back
-              [(first parts) (last parts) sep])
-          3 [(first parts) (second parts) sep (last parts)])))
-     ;;else no dragging going on, return the elements
-     (do (debug dropzone-elements)
-         dropzone-elements))))
+   (debug dragged-element)
+   (let [source-type (:type dragged-element)
+         process?    (if (nil? (:ignore-drops-of-type options))
+                       true
+                       (some #{source-type} (:ignore-drops-of-type options)))]
+     (debug (some #{source-type} (:ignore-drops-of-type options)))
+     (if (and (or overlap-dropzone? overlap-id)
+              process?
+              dragged-element)
+       ;;we have overlap, and there is dragging going on, insert the separator in there.
+       (let [dm    (:drop-marker options)
+             sep   (if dm
+                     {:type dm
+                      :id   dm}
+                     {:type :dnd/drop-marker
+                      :id   :dnd/drop-marker})
+             parts (partition-by #(= overlap-id (:id %)) dropzone-elements)
+             sz    (count parts)]
+         (flatten
+          (case sz
+            0 [sep]
+            1 [(first parts) sep]
+            2 (if (= overlap-id (-> parts ffirst :id))
+                [(first parts) sep (last parts)]
+                ;;else, put sep at the back
+                [(first parts) (last parts) sep])
+            3 [(first parts) (second parts) sep (last parts)])))
+       ;;else no dragging going on, return the elements
+       (do (debug dropzone-elements)
+           dropzone-elements)))))
 
 (re-frame/reg-sub
  :dnd/get-colliding-drop-zone-and-index
