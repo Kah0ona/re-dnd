@@ -71,7 +71,6 @@ not shared with other draggables/drop-zones (on the same page). If you would do 
                   ;; options
 
                   {:drop-dispatch [:my-drop-dispatch] ;;re-frame event handler that will be called when draggable is dropped on a drop-zone
-                  :ignore-drops-of-type #{:type1 type2} ;;optional, if you have more than one dropzone, and u want to exclude drop triggers from certain types
                   :drop-marker :my-drop-marker ;;multi-method dispatch-value for dnd/dropped-widget
                   }
 
