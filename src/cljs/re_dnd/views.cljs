@@ -18,6 +18,11 @@
 (defmulti drag-handle
   (fn [{:keys [type id]}] type))
 
+(defmethod drag-handle
+  :dnd/drop-marker
+  [{:keys [type id]}]
+  [:div.drop-marker])
+
 (defn start-drag-fn
   [id drop-zone-id e e2]
   (let  [p (.-parentNode (.-parentNode (.-target e)))

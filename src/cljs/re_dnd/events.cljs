@@ -8,14 +8,15 @@
                                  spy get-env log-env)]
             [vimsical.re-frame.cofx.inject :as inject]))
 
-(set! js/document.body.onmousemove #(re-frame/dispatch [:dnd/mouse-moves
-                                                        (+ (.-clientX %)
-                                                           (.-scrollX js/window))
-                                                        (+
-                                                         (.-clientY %)
-                                                         (.-scrollY js/window))]))
-(set! js/document.body.onmousedown #(re-frame/dispatch [:dnd/set-mouse-button-status true]))
-(set! js/document.body.onmouseup #(re-frame/dispatch [:dnd/set-mouse-button-status false]))
+
+(.addEventListener js/document.body "mousemove" #(re-frame/dispatch [:dnd/mouse-moves
+                                                                     (+ (.-clientX %)
+                                                                        (.-scrollX js/window))
+                                                                     (+
+                                                                      (.-clientY %)
+                                                                      (.-scrollY js/window))]))
+(.addEventListener js/document.body "mousedown" #(rf/dispatch [:dnd/set-mouse-button-status true]))
+(.addEventListener js/document.body "mouseup" #(rf/dispatch [:dnd/set-mouse-button-status false]))
 
 (defn flip-args
   [f x y]
