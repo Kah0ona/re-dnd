@@ -113,7 +113,11 @@
    (when-not type
      (warn "Please set a :type key in the second parameter of options"))
    (if-not dropped-position ;;append
-     (update-in db [:dnd/state :drop-zones drop-zone-id] conj elt)
+     (update-in db [:dnd/state :drop-zones drop-zone-id]
+                (let [elts             (get-in db [:dnd/state :drop-zones drop-zone-id])
+                      dropped-position (count elts)]
+                  (partial insert-at-pos dropped-position))
+                elt)
      (update-in db
                 [:dnd/state :drop-zones drop-zone-id]
                 (partial insert-at-pos dropped-position)
