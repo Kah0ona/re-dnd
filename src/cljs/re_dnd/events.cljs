@@ -104,6 +104,7 @@
 (re-frame/reg-event-db
  :dnd/move-drop-zone-element
  (fn [db [_ dz-id e-id new-pos]]
+   (debug new-pos)
    (update-in db [:dnd/state :drop-zones dz-id] move-element-in-list e-id new-pos)))
 
 (re-frame/reg-event-db

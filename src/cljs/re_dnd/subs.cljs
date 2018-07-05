@@ -78,7 +78,19 @@
                                    (str "dropped-element-" (name (:id e)))))]
                 (h/collides? dropped-rect drag-box)))))
          (map (fn [[i e]]
-                [(:id e) i])))))
+                [(:id e)
+                 (if  (= 1 i)
+                   ;; is top of dragbox higher than dropped rec?
+                   ;; then return index 0, 1 otherwise, to
+                   ;; allow special case of moving to top
+                   (let [dropped-rect (h/bounding-rect
+                                       (.getElementById
+                                        js/document
+                                        (str "dropped-element-" (name (:id e)))))]
+                     (if (<= (:top drag-box) (:top dropped-rect))
+                       0 1))
+                   i
+                   )])))))
 
 (re-frame/reg-sub
  :dnd/dropped-item-overlap-id
@@ -136,20 +148,28 @@
    (debug dragged-element)
    (if (and (or overlap-dropzone? overlap-id) dragged-element)
      ;;we have overlap, and there is dragging going on, insert the separator in there.
-     (let [dm    (:drop-marker options)
-           sep   (if dm
-                   {:type dm
-                    :id   dm}
-                   {:type :dnd/drop-marker
-                    :id   :dnd/drop-marker})
-           parts (partition-by #(= overlap-id (:id %)) dropzone-elements)
-           sz    (count parts)]
+     (let [dm          (:drop-marker options)
+           sep         (if dm
+                         {:type dm
+                          :id   dm}
+                         {:type :dnd/drop-marker
+                          :id   :dnd/drop-marker})
+           parts       (partition-by #(= overlap-id (:id %)) dropzone-elements)
+           dragbox     (h/bounding-rect (.getElementById js/document "drag-box"))
+           overlap-elt (h/bounding-rect
+                        (.getElementById
+                         js/document
+                         (str "dropped-element-" (name overlap-id))))
+           sz          (count parts)]
+       (debug dragged-element  overlap-id dragbox overlap-elt)
        (flatten
         (case sz
           0 [sep]
           1 [(first parts) sep]
           2 (if (= overlap-id (-> parts ffirst :id))
-              [(first parts) sep (last parts)]
+              (if (<= (:top dragbox) (:top overlap-elt ))
+                [sep (first parts) (last parts)]
+                [(first parts) sep (last parts)])
               ;;else, put sep at the back
               [(first parts) (last parts) sep])
           3 [(first parts) (second parts) sep (last parts)])))
