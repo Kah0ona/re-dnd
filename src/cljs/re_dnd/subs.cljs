@@ -145,7 +145,6 @@
     (re-frame/subscribe [:dnd/draggable-overlaps? id])
     (re-frame/subscribe [:dnd/dropped-elements id])])
  (fn [[dragged-element options overlap-id overlap-dropzone? dropzone-elements]]
-   (debug dragged-element)
    (if (and (or overlap-dropzone? overlap-id) dragged-element)
      ;;we have overlap, and there is dragging going on, insert the separator in there.
      (let [dm          (:drop-marker options)
@@ -161,7 +160,6 @@
                          js/document
                          (str "dropped-element-" (name overlap-id))))
            sz          (count parts)]
-       (debug dragged-element  overlap-id dragbox overlap-elt)
        (flatten
         (case sz
           0 [sep]
@@ -174,8 +172,7 @@
               [(first parts) (last parts) sep])
           3 [(first parts) (second parts) sep (last parts)])))
      ;;else no dragging going on, return the elements
-     (do (debug dropzone-elements)
-         dropzone-elements))))
+     dropzone-elements)))
 
 (re-frame/reg-sub
  :dnd/get-colliding-drop-zone-and-index
@@ -185,7 +182,6 @@
  :<- [:dnd/drop-zones]
  :<- [:dnd/dragged-element]
  (fn [[mouse drop-zones dragged-element]]
-   (debug mouse (count drop-zones) dragged-element)
    (into {}
          (comp
           (map
