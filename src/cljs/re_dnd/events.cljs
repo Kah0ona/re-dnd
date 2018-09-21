@@ -9,14 +9,16 @@
             [vimsical.re-frame.cofx.inject :as inject]))
 
 
-(.addEventListener js/document.body "mousemove" #(re-frame/dispatch [:dnd/mouse-moves
-                                                                     (+ (.-clientX %)
-                                                                        (.-scrollX js/window))
-                                                                     (+
-                                                                      (.-clientY %)
-                                                                      (.-scrollY js/window))]))
-(.addEventListener js/document.body "mousedown" #(rf/dispatch [:dnd/set-mouse-button-status true]))
-(.addEventListener js/document.body "mouseup" #(rf/dispatch [:dnd/set-mouse-button-status false]))
+(defn reg-event-listeners
+  []
+  (.addEventListener js/document.body "mousemove" #(re-frame/dispatch [:dnd/mouse-moves
+                                                                       (+ (.-clientX %)
+                                                                          (.-scrollX js/window))
+                                                                       (+
+                                                                        (.-clientY %)
+                                                                        (.-scrollY js/window))]))
+  (.addEventListener js/document.body "mousedown" #(rf/dispatch [:dnd/set-mouse-button-status true]))
+  (.addEventListener js/document.body "mouseup" #(rf/dispatch [:dnd/set-mouse-button-status false])))
 
 (defn flip-args
   [f x y]
@@ -127,6 +129,7 @@
 (re-frame/reg-event-db
  :dnd/initialize-drop-zone
  (fn [db [_ id opts]]
+   (reg-event-listeners)
    (-> db
        (assoc-in [:dnd/state :drop-zone-options id] opts)
        (assoc-in [:dnd/state :drop-zones id] []))))
@@ -157,7 +160,6 @@
    ;;when not down?, check first dragging id, and handle a drop
    ;; through a re-dispatch for cleanliness
    (let [[drop-zone-id draggable-id] (find-first-dragging-element db)]
-     (debug [drop-zone-id draggable-id])
      (cond->
          {:db (assoc db :mouse-button down?)}
        (and (not down?) draggable-id)

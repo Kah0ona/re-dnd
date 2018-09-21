@@ -4,10 +4,10 @@
   :license {:name "MIT"}
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/clojurescript "1.9.946"]
-                 [reagent "0.8.0-alpha2"]
-                 [re-frame "0.10.3"]
+                 [reagent "0.8.1"]
+                 [re-frame "0.10.5"]
                  [com.taoensso/timbre "4.10.0"]
-                 [re-frame-utils "0.1.0-SNAPSHOT"]
+                 [re-frame-utils "0.1.0"]
                  [fipp "0.6.10"]]
 
 
