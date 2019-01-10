@@ -274,12 +274,13 @@
               drag-target-hit-dispatch)))
 
    {:db         (set-all-draggables-to-idle db)
-    :dispatch-n (for [[drop-zone-id [[dropped-element-id index]]] drop-zones-being-hit?]
-                  (let [options                  (get-in db [:dnd/state :drop-zone-options drop-zone-id])
-                        drag-target-hit-dispatch (into (:drop-dispatch options)
-                                                       [[source-drop-zone-id source-draggable-id]
-                                                        [drop-zone-id dropped-element-id index]])]
-                    drag-target-hit-dispatch))}))
+    :dispatch-n (vec (for [[drop-zone-id [[dropped-element-id index]]] drop-zones-being-hit?]
+                       (let [options                  (get-in db [:dnd/state :drop-zone-options drop-zone-id])
+                             _ (debug options)
+                             drag-target-hit-dispatch (into (:drop-dispatch options)
+                                                            [[source-drop-zone-id source-draggable-id]
+                                                             [drop-zone-id dropped-element-id index]])]
+                         drag-target-hit-dispatch)))}))
 
 (re-frame/reg-event-db
  :dnd/reorder-drop
