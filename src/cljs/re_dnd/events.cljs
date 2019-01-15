@@ -265,22 +265,21 @@
         drop-zones-being-hit? :dnd/get-colliding-drop-zone-and-index}
        [_ source-draggable-id source-drop-zone-id]]
    (debug drop-zones-being-hit?)
-   (debug "dispatches: "
-          (for [[drop-zone-id [[dropped-element-id index]]] drop-zones-being-hit?]
-            (let [options                  (get-in db [:dnd/state :drop-zone-options drop-zone-id])
-                  drag-target-hit-dispatch (into (:drop-dispatch options)
-                                                 [[source-drop-zone-id source-draggable-id]
-                                                  [drop-zone-id dropped-element-id index]])]
-              drag-target-hit-dispatch)))
-
-   {:db         (set-all-draggables-to-idle db)
-    :dispatch-n (vec (for [[drop-zone-id [[dropped-element-id index]]] drop-zones-being-hit?]
-                       (let [options                  (get-in db [:dnd/state :drop-zone-options drop-zone-id])
-                             _ (debug options)
-                             drag-target-hit-dispatch (into (:drop-dispatch options)
-                                                            [[source-drop-zone-id source-draggable-id]
-                                                             [drop-zone-id dropped-element-id index]])]
-                         drag-target-hit-dispatch)))}))
+   (let [disps (for [[drop-zone-id [[dropped-element-id index]]] drop-zones-being-hit?]
+                 (let [options                  (get-in db [:dnd/state :drop-zone-options drop-zone-id])
+                       _                        (debug options)
+                       drag-target-hit-dispatch (if (:drop-dispatch options)
+                                                  (into (:drop-dispatch options)
+                                                        [[source-drop-zone-id source-draggable-id]
+                                                         [drop-zone-id dropped-element-id index]])
+                                                  (do
+                                                    (warn "No options found for drop-zone-id: " drop-zone-id ", make sure it is properly initialized. Ignoring")
+                                                    nil))]
+                   drag-target-hit-dispatch))
+         disps (remove nil? disps)]
+     (debug "dispatches: " disps)
+     {:db         (set-all-draggables-to-idle db)
+      :dispatch-n (vec disps)})))
 
 (re-frame/reg-event-db
  :dnd/reorder-drop
