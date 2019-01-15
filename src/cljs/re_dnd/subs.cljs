@@ -155,10 +155,11 @@
                           :id   :dnd/drop-marker})
            parts       (partition-by #(= overlap-id (:id %)) dropzone-elements)
            dragbox     (h/bounding-rect (.getElementById js/document "drag-box"))
-           overlap-elt (h/bounding-rect
-                        (.getElementById
-                         js/document
-                         (str "dropped-element-" (name overlap-id))))
+           overlap-elt (when overlap-id
+                         (h/bounding-rect
+                          (.getElementById
+                           js/document
+                           (str "dropped-element-" (name overlap-id)))))
            sz          (count parts)]
        (flatten
         (case sz
