@@ -1,4 +1,4 @@
-(defproject re-dnd "0.1.4"
+(defproject re-dnd "0.1.5"
   :description "A configurable drag/drop widget + API for re-frame apps"
   :url "https://github.com/Kah0ona/re-dnd.git"
   :license {:name "MIT"}
