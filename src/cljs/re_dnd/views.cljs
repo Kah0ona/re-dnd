@@ -105,8 +105,13 @@
   (let [s (rf/subscribe [:dnd/drag-box])]
     (fn []
       (let [{:keys [width height x y]} @s]
-        [:div#drag-box.drag-box
-         {:style {:width  (str width "px")
-                  :height (str height "px")
-                  :top    (str y "px")
-                  :left   (str x "px")}}]))))
+        [:div.drag-box-wrap
+         {:style {:position :fixed
+                  :width "100%"
+                  :background-color "rgba(0,0,0,0.5)"
+                  :height "100vh"}}
+         [:div#drag-box.drag-box
+          {:style {:width  (str width "px")
+                   :height (str height "px")
+                   :top    (str y "px")
+                   :left   (str x "px")}}]]))))

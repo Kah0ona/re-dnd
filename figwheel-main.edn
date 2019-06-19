@@ -1,0 +1,13 @@
+{:watch-dirs          ["src/cljs"]
+ :css-dirs            ["resources/public/css"]
+ :reload-clj-files    true}
+
+;;things to consider regarding Figwheel-Main:
+;; make sure you put ^:figwheel-hooks on the core namespace cs2.core in the ns declaration
+;; make sure you put ^:after-load metadata on the cs2.core/mount-root function, to call it after source code changes.
+;; See: https://figwheel.org, scroll down to Reload Hooks.
+
+
+;; Target dir
+;;target-dir by default is 'target', and figwheel server also serves
+;;files from 'target/public' which will be where it will compile to.

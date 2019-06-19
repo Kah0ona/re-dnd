@@ -1,4 +1,4 @@
-(ns re-dnd-demo.core
+(ns ^:figwheel-hooks re-dnd-demo.core
   (:require [re-dnd-demo.config :as config]
             [re-dnd-demo.views :as my-views]
             [re-dnd.events]
@@ -14,7 +14,8 @@
     (enable-console-print!)
     (println "dev mode")))
 
-(defn mount-root []
+(defn ^:after-load
+  mount-root []
   (re-frame/clear-subscription-cache!)
   (reagent/render [my-views/main-panel]
                   (.getElementById js/document "app")))

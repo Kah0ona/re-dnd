@@ -49,7 +49,7 @@
 (defmethod dndv/drag-handle
   :bluebox
   [{:keys [type id]}]
-  [:div "bluedraghandle"])
+  [:div "bluedraghandlee"])
 
 (defmethod dndv/dropped-widget
   :redbox

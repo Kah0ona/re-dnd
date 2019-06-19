@@ -1,4 +1,4 @@
-(defproject re-dnd "0.1.5"
+(defproject re-dnd "0.1.6"
   :description "A configurable drag/drop widget + API for re-frame apps"
   :url "https://github.com/Kah0ona/re-dnd.git"
   :license {:name "MIT"}
@@ -21,42 +21,31 @@
 
   :figwheel {:css-dirs ["resources/public/css"]}
 
-  :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
+  :repl-options {:timeout          220000
+                 :nrepl-middleware [cider.piggieback/wrap-cljs-repl]}
 
-  :aliases {"dev"   ["do" "clean"
-                     ["pdo" ["figwheel" "dev"]]]
-            "demo"  ["do" "clean"
-                     ["cljsbuild" "once" "demo"]]
-            "build" ["do" "clean"
-                     ["cljsbuild" "once" "min"]]}
+   ;;figwheel-main, if you want to run it from the commandline
+  :aliases {"fig"       ["trampoline" "run" "-m" "figwheel.main"]
+            "build-dev" ["trampoline" "run" "-m" "figwheel.main" "-b" "dev" "-r"]}
 
 ;;  :jar-exclusions   [#"(?:^|\/)re_dnd_demo\/" #"(?:^|\/)demo\/" #"(?:^|\/)compiled.*\/" #"html$"]
 
   :profiles
   {:dev
-   {:dependencies [[binaryage/devtools "0.9.7"]
-                   [figwheel-sidecar "0.5.13"]
-                   [com.cemerick/piggieback "0.2.2"]]
+   {:dependencies [
+                   [cider/piggieback "0.4.0"]
+                   [binaryage/devtools "0.9.7"]
+                   [com.bhauman/rebel-readline-cljs "0.1.4"]
+                   [com.bhauman/figwheel-main "0.2.1-SNAPSHOT"]
+                   [org.clojure/tools.nrepl "0.2.13"]
+                   ]
 
-    :plugins [[lein-figwheel "0.5.13"]
-              [lein-doo "0.1.8"]
+    :plugins [[lein-doo "0.1.8"]
               [lein-pdo "0.1.1"]]}}
 
   :cljsbuild
   {:builds
-   [{:id           "dev"
-     :source-paths ["src/cljs"]
-     :figwheel     {:on-jsload "re-dnd-demo.core/mount-root"}
-     :compiler     {:main                 re-dnd.core
-                    :output-to            "resources/public/js/compiled/app.js"
-                    :output-dir           "resources/public/js/compiled/out"
-                    :asset-path           "js/compiled/out"
-                    :source-map-timestamp true
-                    :closure-defines      {goog.DEBUG true}
-                    :preloads             [devtools.preload]
-                    :external-config      {:devtools/config {:features-to-install :all}}}}
-
-    {:id           "min"
+   [{:id           "min"
      :source-paths ["src/cljs"]
      :compiler     {:main            re-dnd.core
                     :output-to       "resources/public/js/compiled/app.js"
