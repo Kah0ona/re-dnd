@@ -108,7 +108,6 @@
         [:div.drag-box-wrap
          {:style {:position :fixed
                   :width "100%"
-                  :background-color "rgba(0,0,0,0.5)"
                   :height "100vh"}}
          [:div#drag-box.drag-box
           {:style {:width  (str width "px")
