@@ -66,34 +66,39 @@
   []
   (let [drag-box-state (rf/subscribe [:dnd/drag-box])
         db             (rf/subscribe [:db])
-        last-id (r/atom 0)]
+        last-id        (r/atom 0)]
     (rf/dispatch [:dnd/initialize-drop-zone
                   :drop-zone-1
-                  {:drop-dispatch    [:my-drop-dispatch]
-                   :drop-marker      :my-drop-marker}])
+                  {:drop-dispatch [:my-drop-dispatch]
+                   :drop-marker   :my-drop-marker}])
     (fn []
       [:div.container
-       (when @drag-box-state
-         [dndv/drag-box]) ;;this thing follows the mouse, and takes over the draggable's size
-       [:div
-        [:p "Drag draggables to the drop-zone to the right, or re-order dropped elements in the drop-zone"]
-        #_[debug-panel @db]
-        [:button.btn.btn-primary
-         {:on-click #(do
-                       (swap! last-id inc)
-                       (rf/dispatch [:dnd/add-drop-zone-element
-                                     :drop-zone-1
-                                     {:type (if (odd? @last-id) :redbox :bluebox)
-                                      :id (keyword (str "drop-zone-element-" @last-id))}]))}
-         "Add element to dropzone programmatically"]
-        [:div.clear]
-        [:div {:style {:float :left}}
-         [dndv/draggable :draggable1 [:span "draggable1"]]
-         [dndv/draggable :draggable2 [:span "draggable2"]]
-         [dndv/draggable :draggable3 [:span "draggable3"]]]
-        [:div {:style {:float :right}}
-         [dndv/drop-zone :drop-zone-1
-          [:div "Drop zone"]]]]
+       {:style {:height "1400px"}}
+       [:div {:style {:position :absolute
+                      :border   "1px solid black"
+                      :top      "400px"}}
+        [dndv/drag-box]
+        #_(when @drag-box-state
+            [dndv/drag-box]) ;;this thing follows the mouse, and takes over the draggable's size
+        [:div
+         [:p "Drag draggables to the drop-zone to the right, or re-order dropped elements in the drop-zone"]
+         #_[debug-panel @db]
+         [:button.btn.btn-primary
+          {:on-click #(do
+                        (swap! last-id inc)
+                        (rf/dispatch [:dnd/add-drop-zone-element
+                                      :drop-zone-1
+                                      {:type (if (odd? @last-id) :redbox :bluebox)
+                                       :id   (keyword (str "drop-zone-element-" @last-id))}]))}
+          "Add element to dropzone programmatically"]
+         [:div.clear]
+         [:div {:style {:float :left}}
+          [dndv/draggable :draggable1 [:span "draggable1"]]
+          [dndv/draggable :draggable2 [:span "draggable2"]]
+          [dndv/draggable :draggable3 [:span "draggable3"]]]
+         [:div {:style {:float :right}}
+          [dndv/drop-zone :drop-zone-1
+           [:div "Drop zone"]]]]]
        [:div.clear]
 
        #_[debug-panel @db]])))

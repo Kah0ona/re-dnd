@@ -146,8 +146,7 @@
                                     (comp (partial = :dragging) :status))
                                    first
                                    :id)]))
-                (remove (fn [[dz-id dz]]
-                          (nil? dz)))
+                (remove (comp nil? second))
                 first)]
     (if d
       [nil d]
