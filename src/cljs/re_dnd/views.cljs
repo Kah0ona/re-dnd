@@ -1,5 +1,7 @@
 (ns re-dnd.views
-  (:require [re-dnd.events :as dnd]
+  (:require [goog.dom :as dom]
+            [goog.style :as style]
+            [re-dnd.events :as dnd]
             [re-frame.core :as rf]
             [reagent.core :as r]
             [taoensso.timbre :as timbre
@@ -25,16 +27,15 @@
 
 (defn start-drag-fn
   [id drop-zone-id e e2]
-  (let  [p (.-parentNode (.-parentNode (.-target e)))
-         w (.-clientWidth p)
-         h (.-clientHeight p)]
+  (let  [p (or (dom/getAncestorByClass (.-target e) "dropped-element")
+               (dom/getAncestorByClass (.-target e) "draggable"))
+         bounds (style/getBounds p)]
     (rf/dispatch [:dnd/start-drag id
                   drop-zone-id
-                  (+ (.-clientX e)
-                     (.-scrollX js/window))
-                  (+ (.-clientY e)
-                     (.-scrollY js/window))
-                  w h])))
+                  (.-left bounds)
+                  (.-top bounds)
+                  (.-width bounds)
+                  (.-height bounds)])))
 
 (defn hover-fn
   [elt-id drop-zone-id hover-in?]
@@ -68,9 +69,9 @@
       [:div.dropped-element.row
        {:id (str "dropped-element-" (name (:id de)))}
        #_(when (= :hover @drag-status)
-         [:div.drag-mask
-          {:style {:width  "100%"
-                   :height "100%"}}])
+          [:div.drag-mask
+           {:style {:width  "100%"
+                    :height "100%"}}])
 
        [:div.drag-handle.col-md-1
         {:on-mouse-over (partial hover-fn (:id de) id true)
@@ -100,13 +101,14 @@
         (when body body)]))))
 
 (defn drag-box
-  "this box floats around following the mouse"
+  "Box floating around following the mouse"
   []
   (let [s (rf/subscribe [:dnd/drag-box])]
     (fn []
-      (let [{:keys [width height x y]} @s]
+      (let [{:keys [width height x y] :as drag-box} @s]
         [:div#drag-box.drag-box
-         {:style {:width  (str width "px")
+         {:style {:display (if (nil? drag-box) "none")
+                  :width  (str width "px")
                   :height (str height "px")
                   :top    (str y "px")
                   :left   (str x "px")}}]))))

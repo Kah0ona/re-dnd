@@ -1,6 +1,7 @@
 body {
    font-family: Verdana, sans-serif;
 }
+
 .draggable {
    border: 1px solid red;
    width: 250px;
@@ -48,14 +49,11 @@ body {
    background-color: orange;
 }
 
-
-
 .container {
    width: 800px;
    margin: 0 auto;
    border: 1px solid #ededed;
 }
-
 
 .box {
    width: 100%;
@@ -64,7 +62,6 @@ body {
    padding-top: 30px;
    color: white;
 }
-
 
 .clear {
   clear: both;
@@ -81,7 +78,6 @@ body {
 .draggable {
    margin-bottom: 10px;
 }
-
 
 .btn {
    margin: 20px;
