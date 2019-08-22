@@ -80,6 +80,7 @@
          :on-mouse-up   (partial reorder-fn id (:id de))}
         [drag-handle de]]
        [:div.dropped-element-body.col-md-11
+        ^{:key (hash de)} ;;force rerender everytime `de` changes. since it's an multimethods, this might otherwise fail sometimes.
         [dropped-widget de]]
        [:div {:style {:clear :both}}]])))
 
