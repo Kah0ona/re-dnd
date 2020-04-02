@@ -16,17 +16,30 @@
  [db dz-id draggable-id]
  (->>
   (get-in db [:dnd/state :drop-zones dz-id])
-  (filter (fn [{id :id}]
-            (= id draggable-id)))
+  (filter (comp (partial = draggable-id) :id))
   first))
+
+(defn drag-box-parent-bounding-rect
+  "DOM lookup, returns {:x 0 :y 0} if not found"
+  []
+  (let [e (.getElementById js/document "drag-box" )
+        p (when e
+            (some-> e
+                    .-parentNode
+                    .-parentNode
+                    h/bounding-rect))]
+    (or  {:left 0 :top 0})))
 
 (re-frame/reg-sub
  :dnd/drag-box
  (fn [db _]
-   (let [[drop-zone-id draggable-id] (h/find-first-dragging-element db)]
+   (let [[drop-zone-id draggable-id] (h/find-first-dragging-element db)
+         {:keys [left top] :as rr} (drag-box-parent-bounding-rect)]
      (if (and drop-zone-id draggable-id)
-       (:position
-        (get-dz-element db drop-zone-id draggable-id))
+       (-> (:position
+            (get-dz-element db drop-zone-id draggable-id))
+           (update :x - left)
+           (update :y - top))
        ;;else
        (when draggable-id
          (get-in db [:dnd/state :draggables draggable-id :position]))))))
