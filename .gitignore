@@ -2,6 +2,9 @@
 /target
 /*-init.clj
 /resources/public/js/compiled
+/doo-index.html
+/package-lock.json
+/node_modules/
 out
 .idea
 *.iml

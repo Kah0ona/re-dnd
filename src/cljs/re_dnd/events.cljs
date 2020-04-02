@@ -8,17 +8,17 @@
                                  spy get-env log-env)]
             [vimsical.re-frame.cofx.inject :as inject]))
 
-
-(defn reg-event-listeners
-  []
-  (.addEventListener js/document.body "mousemove" #(re-frame/dispatch [:dnd/mouse-moves
-                                                                       (+ (.-clientX %)
-                                                                          (.-scrollX js/window))
-                                                                       (+
-                                                                        (.-clientY %)
-                                                                        (.-scrollY js/window))]))
-  (.addEventListener js/document.body "mousedown" #(rf/dispatch [:dnd/set-mouse-button-status true]))
-  (.addEventListener js/document.body "mouseup" #(rf/dispatch [:dnd/set-mouse-button-status false])))
+(defonce reg-event-listeners
+  (memoize ; evaluate fn only once
+   (fn []
+     (.addEventListener js/document.body "mousemove" #(re-frame/dispatch [:dnd/mouse-moves
+                                                                          (+ (.-clientX %)
+                                                                             (.-scrollX js/window))
+                                                                          (+
+                                                                           (.-clientY %)
+                                                                           (.-scrollY js/window))]))
+     (.addEventListener js/document.body "mousedown" #(rf/dispatch [:dnd/set-mouse-button-status true]))
+     (.addEventListener js/document.body "mouseup" #(rf/dispatch [:dnd/set-mouse-button-status false])))))
 
 (defn flip-args
   [f x y]
@@ -38,12 +38,12 @@
                   (update :top    + (.-scrollY js/window))
                   (update :right  + (.-scrollX js/window))
                   (update :bottom + (.-scrollY js/window))
-                  (update :left   + (.-scrollX js/window)))
-          ]
+                  (update :left   + (.-scrollX js/window)))]
+
       ;;(debug pos)
       ;;(debug pos')
-      pos'
-      )))
+      pos')))
+
 
 (defn collides?
   [{r1 :right l1 :left t1 :top b1 :bottom}
@@ -213,11 +213,19 @@
    (when id
      (clear-selection))
    (let [pos     {:x (- (- x (.-scrollX js/window)) 20)
-                  :y (- (- y (.-scrollY js/window)) 20)}]
+                  :y (- (- y (.-scrollY js/window)) 20)}
+         change (fn [prev]
+                  (let [offset (or (:offset prev)
+                                   {:x (- (:x pos)(:x prev))
+                                    :y (- (:y pos)(:y prev))})]
+                    (-> (merge prev pos)
+                        (update :x - (:x offset))
+                        (update :y - (:y offset))
+                        (assoc :offset offset))))]
      (if drop-zone-id
        (update-dz-elt db drop-zone-id id (fn [e]
-                                        (assoc e :position pos)))
-       (assoc-in db [:dnd/state :draggables id :position] pos)))))
+                                           (update e :position change)))
+       (update-in db [:dnd/state :draggables id :position] change)))))
 
 (re-frame/reg-event-db
  :dnd/hover
@@ -237,8 +245,8 @@
  (fn  [db [_ id drop-zone-id x y w h]]
    (let []
      (debug (str "start-drag " drop-zone-id "," id ", x: " x ", y: " y ", w: " w ", h: " h))
-     (let [pos {:x      (- (- x (.-scrollX js/window)) 20)
-                :y      (- (- y (.-scrollY js/window)) 20) ;;discount for scroll pos
+     (let [pos {:x      (- x (.-scrollX js/window))
+                :y      (- y (.-scrollY js/window)) ;;discount for scroll pos
                 :width  w
                 :height h}]
        (debug (:y pos) y (.-scrollY js/window))

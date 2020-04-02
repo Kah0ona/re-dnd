@@ -1,1 +1,4 @@
-{:main re-dnd-demo.core}
+^{:open-url "http://[[server-hostname]]:[[server-port]]/demo.html"}
+{:main re-dnd-demo.core
+ :output-to       "resources/public/js/compiled/app-demo.js"
+ :output-dir      "resources/public/js/compiled/demo/out"}

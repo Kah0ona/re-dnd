@@ -1,4 +1,5 @@
-(defproject re-dnd "0.1.9"
+(defproject re-dnd "0.1.10"
+
   :description "A configurable drag/drop widget + API for re-frame apps"
   :url "https://github.com/Kah0ona/re-dnd.git"
   :license {:name "MIT"}
@@ -37,10 +38,9 @@
                    [binaryage/devtools "0.9.7"]
                    [com.bhauman/rebel-readline-cljs "0.1.4"]
                    [com.bhauman/figwheel-main "0.2.1-SNAPSHOT"]
-                   [org.clojure/tools.nrepl "0.2.13"]
-                   ]
+                   [org.clojure/tools.nrepl "0.2.13"]]
 
-    :plugins [[lein-doo "0.1.8"]
+    :plugins [[lein-doo "0.1.11"]
               [lein-pdo "0.1.1"]]}}
 
   :cljsbuild
