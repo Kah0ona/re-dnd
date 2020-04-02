@@ -66,11 +66,16 @@
   []
   (let [drag-box-state (rf/subscribe [:dnd/drag-box])
         db             (rf/subscribe [:db])
-        last-id        (r/atom 0)]
+        last-id        (r/atom 1)]
     (rf/dispatch [:dnd/initialize-drop-zone
                   :drop-zone-1
                   {:drop-dispatch [:my-drop-dispatch]
-                   :drop-marker   :my-drop-marker}])
+                   :drop-marker   :my-drop-marker}
+                  ;;initial elements can be put here
+                  [{:type :bluebox
+                    :id (keyword (str "drop-zone-element-" 0))}
+                   {:type :redbox
+                    :id (keyword (str "drop-zone-element-" 1))}]])
     (fn []
       [:div.container
        {:style {:height "1400px"}}

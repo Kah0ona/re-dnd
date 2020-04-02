@@ -125,13 +125,18 @@
                 (partial insert-at-pos dropped-position)
                 elt))))
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
  :dnd/initialize-drop-zone
- (fn [db [_ id opts]]
+ (fn [{db :db} [_ id opts initial-elements]]
    (reg-event-listeners)
-   (-> db
-       (assoc-in [:dnd/state :drop-zone-options id] opts)
-       (assoc-in [:dnd/state :drop-zones id] []))))
+   (let [initial-disps (map (fn [elt]
+                              [:dnd/add-drop-zone-element id elt])
+                            initial-elements)]
+     {:db
+      (-> db
+          (assoc-in [:dnd/state :drop-zone-options id] opts)
+          (assoc-in [:dnd/state :drop-zones id] []))
+      :dispatch-n initial-disps})))
 
 (defn find-first-dragging-element
   [db]
