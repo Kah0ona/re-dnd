@@ -19,9 +19,9 @@ First add this to your project.clj dependencies
 re-dnd will store all its state in the local app-db, just as the rest of your re-frame app.
 To avoid name clashes, it will store all its state under the key `:dnd/state` in the db.
 
-Below the usage is explained through an example. Check the [demo](http://sytematic.nl/re-dnd-demo/index.html) here.
+Below the usage is explained through an example. If you clone the library, you can also run the demo, by running `lein fig`, and navigating to http://localhost:9500/demo.html.
 
-First initialize everything properly
+
 ```
 To make sure everything is initialized properly, require re-dnd.events in your core.cljs,
 or where ever your entry point is.
@@ -56,8 +56,6 @@ not shared with other draggables/drop-zones (on the same page). If you would do 
  []
   [dndv/draggable :draggable-1
    [:div "Style me any way you like, i'm draggable."]])
-
-
 
 (defn my-panel
   []

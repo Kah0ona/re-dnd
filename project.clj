@@ -26,15 +26,14 @@
                  :nrepl-middleware [cider.piggieback/wrap-cljs-repl]}
 
    ;;figwheel-main, if you want to run it from the commandline
-  :aliases {"fig"       ["trampoline" "run" "-m" "figwheel.main"]
+  :aliases {"fig"       ["trampoline" "run" "-m" "figwheel.main" "-b" "dev"]
             "build-dev" ["trampoline" "run" "-m" "figwheel.main" "-b" "dev" "-r"]}
 
 ;;  :jar-exclusions   [#"(?:^|\/)re_dnd_demo\/" #"(?:^|\/)demo\/" #"(?:^|\/)compiled.*\/" #"html$"]
 
   :profiles
   {:dev
-   {:dependencies [
-                   [cider/piggieback "0.4.0"]
+   {:dependencies [[cider/piggieback "0.4.0"]
                    [binaryage/devtools "0.9.7"]
                    [com.bhauman/rebel-readline-cljs "0.1.4"]
                    [com.bhauman/figwheel-main "0.2.1-SNAPSHOT"]

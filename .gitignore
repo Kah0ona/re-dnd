@@ -22,3 +22,4 @@ misc/
 *.swo
 *.swp
 .DS_Store
+.rebel_readline_history
