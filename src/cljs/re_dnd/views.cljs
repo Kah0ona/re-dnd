@@ -25,6 +25,11 @@
   [{:keys [type id]}]
   [:div.drop-marker])
 
+(defmethod drag-handle
+  :default
+  [{:keys [type id]}]
+  [:div.drop-marker])
+
 (defn start-drag-fn
   [id drop-zone-id e e2]
   (let  [p (or (dom/getAncestorByClass (.-target e) "dropped-element")
