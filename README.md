@@ -40,7 +40,7 @@ Now we can create the visual part of the drag and drop. We define a draggable co
 *NOTE:* we provide them with id's (normal keys, here :draggable-1 and :drop-zone-1), make sure these keys are unique globally, ie.
 not shared with other draggables/drop-zones (on the same page). If you would do this, state changes of one draggable/drop-zone are overwriting state of others.
 
-```clojurescript
+```clojure
 (ns my-project.my-view
   (:require
   [re-frame.core :as rf]
@@ -90,7 +90,7 @@ not shared with other draggables/drop-zones (on the same page). If you would do 
 Now we have the basic stuff there. You might need some CSS to make it look decent. The point is that the draggable
 can be dropped on the drop-zone, and then the [:my-drop-dispatch] event will be called. Let's implement this event:
 
-```clojurescript
+```clojure
 (def last-id (r/atom 0)) ;;or use ie. (str (random-uuid))
 
 (rf/reg-event-fx
@@ -129,7 +129,7 @@ can be dropped on the drop-zone, and then the [:my-drop-dispatch] event will be 
 
 Before dropping an item, a visual is shown indicating where the component will be dropped (ie. between which already existing dropped elements). You can create a custom one like so:
 
-```clojurescript
+```clojure
 ;;this is a multi method implementation fo dndv/dropped-widget.
 ;;You can create multiple ones, and based on the :type key in the options map of this thing
 (defmethod dndv/dropped-widget
@@ -139,7 +139,7 @@ Before dropping an item, a visual is shown indicating where the component will b
 ```
 
 If you don't supply the :drop-marker key upon initialization of the drop-zone, by default this implementation will be used.
-```clojurescript
+```clojure
 ;;we dispatch on the :type key
 (defmulti dropped-widget
   (fn [{:keys [type id]}] type))
@@ -194,7 +194,7 @@ Some default components come with CSS classes. The following base CSS should be 
 ## More of the API, events and subscriptions
 
 Since this is re-frame, all the registered events are available to you. Here are some that could come in handy:
-```clojurescript
+```clojure
 ;;Adds it at position/index 2, this parameter is optional, if omitted, element will be added to the back
 (rf/dispatch [:dnd/add-drop-zone-element :my-drop-zone-id :my-dropped-element-id 2])
 ;;Moves it to the new index 2
@@ -205,7 +205,7 @@ Since this is re-frame, all the registered events are available to you. Here are
 ```
 
 Also, there are various subscriptions that might be of use. They're used internally, but some could be useful to you.
-```clojurescript
+```clojure
 ;; returns a map of drop-zone-id to a list of elements within the drop-zone that are also colliding, and their positional index in the drop-zone
 ;; ie. {:my-drop-zone-1 [[:my-dropped-element-1 0] [:my-dropped-element-2 1]] ...}
 (rf/subscribe [:dnd/get-colliding-drop-zone-and-index])
