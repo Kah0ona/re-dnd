@@ -22,9 +22,9 @@ To avoid name clashes, it will store all its state under the key `:dnd/state` in
 Below the usage is explained through an example. If you clone the library, you can also run the demo, by running `lein fig`, and navigating to http://localhost:9500/demo.html.
 
 
-```
 To make sure everything is initialized properly, require re-dnd.events in your core.cljs,
 or where ever your entry point is.
+```clojure
 (ns your-app.core
  (:require
    ...
@@ -39,7 +39,8 @@ Now we can create the visual part of the drag and drop. We define a draggable co
 
 *NOTE:* we provide them with id's (normal keys, here :draggable-1 and :drop-zone-1), make sure these keys are unique globally, ie.
 not shared with other draggables/drop-zones (on the same page). If you would do this, state changes of one draggable/drop-zone are overwriting state of others.
-```
+
+```clojurescript
 (ns my-project.my-view
   (:require
   [re-frame.core :as rf]
@@ -89,8 +90,8 @@ not shared with other draggables/drop-zones (on the same page). If you would do 
 Now we have the basic stuff there. You might need some CSS to make it look decent. The point is that the draggable
 can be dropped on the drop-zone, and then the [:my-drop-dispatch] event will be called. Let's implement this event:
 
-```
-(def last-id (r/atom 0))
+```clojurescript
+(def last-id (r/atom 0)) ;;or use ie. (str (random-uuid))
 
 (rf/reg-event-fx
  :my-drop-dispatch
@@ -128,7 +129,7 @@ can be dropped on the drop-zone, and then the [:my-drop-dispatch] event will be 
 
 Before dropping an item, a visual is shown indicating where the component will be dropped (ie. between which already existing dropped elements). You can create a custom one like so:
 
-```
+```clojurescript
 ;;this is a multi method implementation fo dndv/dropped-widget.
 ;;You can create multiple ones, and based on the :type key in the options map of this thing
 (defmethod dndv/dropped-widget
@@ -138,7 +139,7 @@ Before dropping an item, a visual is shown indicating where the component will b
 ```
 
 If you don't supply the :drop-marker key upon initialization of the drop-zone, by default this implementation will be used.
-```
+```clojurescript
 ;;we dispatch on the :type key
 (defmulti dropped-widget
   (fn [{:keys [type id]}] type))
@@ -153,7 +154,7 @@ If you don't supply the :drop-marker key upon initialization of the drop-zone, b
 ## CSS classes
 Some default components come with CSS classes. The following base CSS should be put into place, and tweaked where you see fit:
 
-```
+```css
 .draggable, dropped-element {
    cursor: move;
    position: relative;
@@ -193,7 +194,7 @@ Some default components come with CSS classes. The following base CSS should be 
 ## More of the API, events and subscriptions
 
 Since this is re-frame, all the registered events are available to you. Here are some that could come in handy:
-```
+```clojurescript
 ;;Adds it at position/index 2, this parameter is optional, if omitted, element will be added to the back
 (rf/dispatch [:dnd/add-drop-zone-element :my-drop-zone-id :my-dropped-element-id 2])
 ;;Moves it to the new index 2
@@ -204,7 +205,7 @@ Since this is re-frame, all the registered events are available to you. Here are
 ```
 
 Also, there are various subscriptions that might be of use. They're used internally, but some could be useful to you.
-```
+```clojurescript
 ;; returns a map of drop-zone-id to a list of elements within the drop-zone that are also colliding, and their positional index in the drop-zone
 ;; ie. {:my-drop-zone-1 [[:my-dropped-element-1 0] [:my-dropped-element-2 1]] ...}
 (rf/subscribe [:dnd/get-colliding-drop-zone-and-index])
@@ -238,7 +239,7 @@ Also, there are various subscriptions that might be of use. They're used interna
 
 Put this in your Emacs config file:
 
-```
+```lisp
 (setq cider-cljs-lein-repl
 	"(do (require 'figwheel-sidecar.repl-api)
          (figwheel-sidecar.repl-api/start-figwheel!)
@@ -249,27 +250,19 @@ Navigate to a clojurescript file and start a figwheel REPL with `cider-jack-in-c
 
 ### Run the demo application, which depends on the library:
 
-```
-lein dev
+```bash
+lein fig
 ```
 
 Figwheel will automatically push cljs changes to the browser.
 
-Wait a bit, then browse to [http://localhost:3449](http://localhost:3449).
+Wait a bit, then browse to [http://localhost:9500/demo.html](http://localhost:9500/demo.html).
 
-### Run tests:
-
-```
-lein clean
-lein doo phantom test once
-```
-
-The above command assumes that you have [phantomjs](https://www.npmjs.com/package/phantomjs) installed. However, please note that [doo](https://github.com/bensu/doo) can be configured to run cljs.test in many other JS environments (chrome, ie, safari, opera, slimer, node, rhino, or nashorn).
 
 ## Production Build
 
 To compile clojurescript to javascript:
 
 ```
-lein build
+lein build-dev
 ```
