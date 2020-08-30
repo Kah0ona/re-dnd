@@ -82,9 +82,9 @@
        [:div {:style {:position :absolute
                       :border   "1px solid black"
                       :top      "400px"}}
-        [dndv/drag-box]
         #_(when @drag-box-state
             [dndv/drag-box]) ;;this thing follows the mouse, and takes over the draggable's size
+        [dndv/drag-box]
         [:div
          [:p "Drag draggables to the drop-zone to the right, or re-order dropped elements in the drop-zone"]
          #_[debug-panel @db]

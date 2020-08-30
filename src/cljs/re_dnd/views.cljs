@@ -69,7 +69,8 @@
 
 (defn dropped-element
   [id de]
-  (let [drag-status (rf/subscribe [:dnd/drag-status (:id de) id])]
+  (let [drag-status (rf/subscribe [:dnd/drag-status (:id de) id])
+        options     (rf/subscribe [:dnd/dragdrop-options id])]
     (fn [id de]
       [:div.dropped-element.row
        {:id (str "dropped-element-" (name (:id de)))}
@@ -79,11 +80,12 @@
                     :height "100%"}}])
 
        [:div.drag-handle.col-md-1
-        {:on-mouse-over (partial hover-fn (:id de) id true)
-         :on-mouse-out  (partial hover-fn (:id de) id false)
-         :on-mouse-down (partial start-drag-fn (:id de) id)
-         ;;drop-zone elements can be re-ordered, this is the only functionality
-         :on-mouse-up   (partial reorder-fn id (:id de))}
+        (when-not (:no-drag-listeners @options)
+          {:on-mouse-over (partial hover-fn (:id de) id true)
+           :on-mouse-out  (partial hover-fn (:id de) id false)
+           :on-mouse-down (partial start-drag-fn (:id de) id)
+           ;;drop-zone elements can be re-ordered, this is the only functionality
+           :on-mouse-up   (partial reorder-fn id (:id de))})
         [drag-handle de]]
        [:div.dropped-element-body.col-md-11
         ^{:key (hash de)} ;;force rerender everytime `de` changes. since it's an multimethods, this might otherwise fail sometimes.
