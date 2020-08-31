@@ -87,12 +87,48 @@
 
 (defn move-element-in-list
   [m k new-pos]
-  (let [e          (-> (filter (fn [{id :id}]
-                                 (= id k)) m)
-                       first)
-        [h t]      (split-at new-pos m)
-        comparator #(= (:id %) k)]
+  (let [comparator (comp #{k} :id)
+        e          (->> m
+                        (filter comparator)
+                        first)
+        [h t]      (split-at new-pos m)]
+    (debug (map :id m) k (:id e) new-pos)
     (concat (remove comparator h) [e] (remove comparator t))))
+
+(defn positions
+  [pred coll]
+  (keep-indexed (fn [idx x]
+                  (when (pred x)
+                    idx))
+                coll))
+
+(defn index-of
+  [search coll]
+  (first (positions #{search} coll)))
+
+(defn get-position-of-element
+  [db dz-id elt-id]
+  (let [elts (get-in db [:dnd/state :drop-zones dz-id])]
+    (index-of elt-id (mapv :id elts))))
+
+(rf/reg-event-fx
+ :dnd/move-up
+ (fn [{db :db} [_ dz-id elt-id]]
+   (let [idx (get-position-of-element db dz-id elt-id)]
+     (if (pos? idx)
+       {:db       db
+        :dispatch [:dnd/move-drop-zone-element dz-id elt-id (dec idx)]}
+       ;;else
+       {:db db}))))
+
+(rf/reg-event-fx
+ :dnd/move-down
+ (fn [{db :db} [_ dz-id elt-id]]
+   (let [num-elts (count (get-in db [:dnd/state :drop-zones dz-id]))
+         idx      (get-position-of-element db dz-id elt-id)]
+     {:db       db
+      :dispatch [:dnd/move-drop-zone-element dz-id elt-id (inc (inc idx))]})))
+
 
 (re-frame/reg-event-db
  :dnd/delete-drop-zone-element

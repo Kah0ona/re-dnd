@@ -80,12 +80,23 @@
                     :height "100%"}}])
 
        [:div.drag-handle.col-md-1
-        (when-not (:no-drag-listeners @options)
+        (when-not (:three-part-drag-handle @options)
           {:on-mouse-over (partial hover-fn (:id de) id true)
            :on-mouse-out  (partial hover-fn (:id de) id false)
            :on-mouse-down (partial start-drag-fn (:id de) id)
-           ;;drop-zone elements can be re-ordered, this is the only functionality
            :on-mouse-up   (partial reorder-fn id (:id de))})
+        (when (:three-part-drag-handle @options)
+          [:i.zmdi.zmdi-caret-up
+           {:on-click #(rf/dispatch [:dnd/move-up dz-id id])}])
+        (when (:three-part-drag-handle @options)
+          [:i.zmdi.zmdi-menu
+           {:on-mouse-over (partial hover-fn (:id de) id true)
+            :on-mouse-out  (partial hover-fn (:id de) id false)
+            :on-mouse-down (partial start-drag-fn (:id de) id)
+            :on-mouse-up   (partial reorder-fn (:id de) id)}])
+        (when (:three-part-drag-handle @options)
+          [:i.zmdi.zmdi-caret-down
+           {:on-click #(rf/dispatch [:dnd/move-down dz-id id])}])
         [drag-handle de]]
        [:div.dropped-element-body.col-md-11
         ^{:key (hash de)} ;;force rerender everytime `de` changes. since it's an multimethods, this might otherwise fail sometimes.
