@@ -87,7 +87,7 @@
            :on-mouse-up   (partial reorder-fn id (:id de))})
         (when (:three-part-drag-handle @options)
           [:i.zmdi.zmdi-caret-up
-           {:on-click #(rf/dispatch [:dnd/move-up dz-id id])}])
+           {:on-click #(rf/dispatch [:dnd/move-up id (:id de)])}])
         (when (:three-part-drag-handle @options)
           [:i.zmdi.zmdi-menu
            {:on-mouse-over (partial hover-fn (:id de) id true)
@@ -96,10 +96,10 @@
             :on-mouse-up   (partial reorder-fn (:id de) id)}])
         (when (:three-part-drag-handle @options)
           [:i.zmdi.zmdi-caret-down
-           {:on-click #(rf/dispatch [:dnd/move-down dz-id id])}])
+           {:on-click #(rf/dispatch [:dnd/move-down id (:id de)])}])
         [drag-handle de]]
        [:div.dropped-element-body.col-md-11
-        ^{:key (hash de)} ;;force rerender everytime `de` changes. since it's an multimethods, this might otherwise fail sometimes.
+        ^{:key (:id de)#_(hash de)} ;;force rerender everytime `de` changes. since it's an multimethod, this might otherwise fail sometimes.
         [dropped-widget de]]
        [:div {:style {:clear :both}}]])))
 
