@@ -1,5 +1,6 @@
 (defproject re-dnd "0.1.17"
 
+
   :description "A configurable drag/drop widget + API for re-frame apps"
   :url "https://github.com/Kah0ona/re-dnd.git"
   :license {:name "MIT"}
@@ -8,7 +9,7 @@
                  [reagent "0.8.1"]
                  [re-frame "0.10.6"]
                  [com.taoensso/timbre "4.10.0"]
-                 [re-frame-utils "0.1.0"]
+                 [me.flowthing/re-frame-utils "0.1.1"]
                  [fipp "0.6.10"]]
 
 
