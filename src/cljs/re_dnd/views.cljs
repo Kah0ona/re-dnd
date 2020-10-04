@@ -69,7 +69,8 @@
 
 (defn dropped-element
   [id de]
-  (let [drag-status (rf/subscribe [:dnd/drag-status (:id de) id])]
+  (let [drag-status (rf/subscribe [:dnd/drag-status (:id de) id])
+        options     (rf/subscribe [:dnd/dragdrop-options id])]
     (fn [id de]
       [:div.dropped-element.row
        {:id (str "dropped-element-" (name (:id de)))}
@@ -79,14 +80,26 @@
                     :height "100%"}}])
 
        [:div.drag-handle.col-md-1
-        {:on-mouse-over (partial hover-fn (:id de) id true)
-         :on-mouse-out  (partial hover-fn (:id de) id false)
-         :on-mouse-down (partial start-drag-fn (:id de) id)
-         ;;drop-zone elements can be re-ordered, this is the only functionality
-         :on-mouse-up   (partial reorder-fn id (:id de))}
+        (when-not (:three-part-drag-handle @options)
+          {:on-mouse-over (partial hover-fn (:id de) id true)
+           :on-mouse-out  (partial hover-fn (:id de) id false)
+           :on-mouse-down (partial start-drag-fn (:id de) id)
+           :on-mouse-up   (partial reorder-fn id (:id de))})
+        (when (:three-part-drag-handle @options)
+          [:i.zmdi.zmdi-caret-up
+           {:on-click #(rf/dispatch [:dnd/move-up id (:id de)])}])
+        (when (:three-part-drag-handle @options)
+          [:i.zmdi.zmdi-menu
+           {:on-mouse-over (partial hover-fn (:id de) id true)
+            :on-mouse-out  (partial hover-fn (:id de) id false)
+            :on-mouse-down (partial start-drag-fn (:id de) id)
+            :on-mouse-up   (partial reorder-fn (:id de) id)}])
+        (when (:three-part-drag-handle @options)
+          [:i.zmdi.zmdi-caret-down
+           {:on-click #(rf/dispatch [:dnd/move-down id (:id de)])}])
         [drag-handle de]]
        [:div.dropped-element-body.col-md-11
-        ^{:key (hash de)} ;;force rerender everytime `de` changes. since it's an multimethods, this might otherwise fail sometimes.
+        ^{:key (:id de)#_(hash de)} ;;force rerender everytime `de` changes. since it's an multimethod, this might otherwise fail sometimes.
         [dropped-widget de]]
        [:div {:style {:clear :both}}]])))
 

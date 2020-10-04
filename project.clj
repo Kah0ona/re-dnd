@@ -1,4 +1,5 @@
-(defproject re-dnd "0.1.14"
+(defproject re-dnd "0.1.17"
+
 
   :description "A configurable drag/drop widget + API for re-frame apps"
   :url "https://github.com/Kah0ona/re-dnd.git"

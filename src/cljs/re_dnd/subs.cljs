@@ -34,12 +34,10 @@
  :dnd/drag-box
  (fn [db _]
    (let [[drop-zone-id draggable-id] (h/find-first-dragging-element db)
-         {:keys [left top] :as rr} (drag-box-parent-bounding-rect)]
+                   ]
      (if (and drop-zone-id draggable-id)
-       (-> (:position
-            (get-dz-element db drop-zone-id draggable-id))
-           (update :x - left)
-           (update :y - top))
+       (-> (get-dz-element db drop-zone-id draggable-id)
+           :position)
        ;;else
        (when draggable-id
          (get-in db [:dnd/state :draggables draggable-id :position]))))))
