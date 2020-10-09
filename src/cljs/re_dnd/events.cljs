@@ -114,20 +114,32 @@
 (rf/reg-event-fx
  :dnd/move-up
  (fn [{db :db} [_ dz-id elt-id]]
-   (let [idx (get-position-of-element db dz-id elt-id)]
+   (let [options (get-in db [:dnd/state :drop-zone-options dz-id])
+         idx     (get-position-of-element db dz-id elt-id)
+         disp    (if (:drop-dispatch options)
+                   (into (:drop-dispatch options)
+                         [[dz-id elt-id]
+                          [dz-id elt-id (dec idx)]])
+                   [:dnd/move-drop-zone-element dz-id elt-id (dec idx)])]
      (if (pos? idx)
        {:db       db
-        :dispatch [:dnd/move-drop-zone-element dz-id elt-id (dec idx)]}
+        :dispatch disp}
        ;;else
        {:db db}))))
 
 (rf/reg-event-fx
  :dnd/move-down
  (fn [{db :db} [_ dz-id elt-id]]
-   (let [num-elts (count (get-in db [:dnd/state :drop-zones dz-id]))
-         idx      (get-position-of-element db dz-id elt-id)]
+   (let [options  (get-in db [:dnd/state :drop-zone-options dz-id])
+         num-elts (count (get-in db [:dnd/state :drop-zones dz-id]))
+         idx      (get-position-of-element db dz-id elt-id)
+         disp     (if (:drop-dispatch options)
+                    (into (:drop-dispatch options)
+                          [[dz-id elt-id]
+                           [dz-id elt-id (inc (inc idx))]])
+                    [:dnd/move-drop-zone-element dz-id elt-id (inc (inc idx))])]
      {:db       db
-      :dispatch [:dnd/move-drop-zone-element dz-id elt-id (inc (inc idx))]})))
+      :dispatch disp})))
 
 
 (re-frame/reg-event-db
@@ -321,7 +333,9 @@
                                                          [drop-zone-id dropped-element-id index]])
                                                   (do
                                                     (warn "No options found for drop-zone-id: " drop-zone-id ", make sure it is properly initialized. Ignoring")
-                                                    nil))]
+                                                    nil))
+
+                       ]
                    drag-target-hit-dispatch))
          disps (remove nil? disps)]
      (debug "dispatches: " disps)

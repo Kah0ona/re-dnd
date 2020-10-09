@@ -69,13 +69,14 @@
         last-id        (r/atom 1)]
     (rf/dispatch [:dnd/initialize-drop-zone
                   :drop-zone-1
-                  {:drop-dispatch [:my-drop-dispatch]
-                   :drop-marker   :my-drop-marker}
+                  {:drop-dispatch          [:my-drop-dispatch]
+                   :three-part-drag-handle true
+                   :drop-marker            :my-drop-marker}
                   ;;initial elements can be put here
                   [{:type :bluebox
-                    :id (keyword (str "drop-zone-element-" 0))}
+                    :id   (keyword (str "drop-zone-element-" 0))}
                    {:type :redbox
-                    :id (keyword (str "drop-zone-element-" 1))}]])
+                    :id   (keyword (str "drop-zone-element-" 1))}]])
     (fn []
       [:div.container
        {:style {:height "1400px"}}
