@@ -32,6 +32,12 @@
 
 (defn start-drag-fn
   [id drop-zone-id e e2]
+  ;; Suppress the browser's default mousedown reaction (starting a native text
+  ;; selection), which makes a scrollable ancestor auto-scroll toward the
+  ;; selection anchor the moment you begin dragging. The drag itself is driven
+  ;; by the global mousemove/mouseup listeners, not the default action, so this
+  ;; does not affect drag/drop behaviour.
+  (.preventDefault e)
   (let  [p (or (dom/getAncestorByClass (.-target e) "dropped-element")
                (dom/getAncestorByClass (.-target e) "draggable"))
          bounds (style/getBounds p)]
